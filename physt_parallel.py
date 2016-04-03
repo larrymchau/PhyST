@@ -376,12 +376,14 @@ def fetch_results(proteinCode,outputseq):
         if(outputseq):
             if not os.path.exists('./clustalout'):
                 os.makedirs('clustalout')
-            f = open('./clustalout/'+proteinCode+'.flat','w')
-            count = 1
+            f = open('./clustalout/'+proteinCode+'.faa','w')
+            count = 0
             for item in sequences:
-                f.write('>{0}\n'.format(count))
+                f.write('>{0}\n'.format(dataList[count][4]))
                 f.write(item+('\n'))
                 count = count+1
+        
+        os.system('clustalw2 ./clustalout/'+'1.E.5'+'.faa')
 
         #compute standard deviation
         total = 0
@@ -439,18 +441,30 @@ def fetch_results(proteinCode,outputseq):
         fusion3x.sort()
         fusion2x.sort()
 
-        printWrite("    Potential fusion proteins...\n",file)
-        printWrite("    Listing GI Numbers of proteins 4 standard deviations greater than the mean:\n",file)
-        for item in fusion4x:
-            printWrite("        {0};{1}\n".format(item[2],item[0]),file)
+        if (not fusion4x and not fusion3x and not fusion2x):
+            printWrite("    No potential fusion proteins found.\n", file)
+        else:
+            printWrite("    Potential fusion proteins...\n",file)
+            if (fusion4x):
+                printWrite("    Listing GI Numbers of proteins 4 standard deviations greater than the mean:\n",file)
+                for item in fusion4x:
+                    printWrite("        {0};{1}\n".format(item[2],item[0]),file)
+            else:
+                printWrite("    No potential fusion proteins found 4 standard deviations from the mean.\n", file)
 
-        printWrite("    Listing GI Numbers of proteins 3 standard deviations greater than the mean:\n",file)
-        for item in fusion3x:
-            printWrite("        {0};{1}\n".format(item[2], item[0]),file)
-
-        printWrite("    Listing GI Numbers of proteins 2 standard deviations greater than the mean:\n",file)
-        for item in fusion2x:
-            printWrite("        {0};{1}\n".format(item[2], item[0]),file)
+            if (fusion3x):
+                printWrite("    Listing GI Numbers of proteins 3 standard deviations greater than the mean:\n",file)
+                for item in fusion3x:
+                    printWrite("        {0};{1}\n".format(item[2], item[0]),file)
+            else:
+                printWrite("    No potential fusion proteins found 3 standard deviations from the mean.\n", file)
+                
+            if (fusion2x):
+                printWrite("    Listing GI Numbers of proteins 2 standard deviations greater than the mean:\n",file)
+                for item in fusion2x:
+                    printWrite("        {0};{1}\n".format(item[2], item[0]),file)
+            else:
+                printWrite("    No potential fusion proteins found 2 standard deviations from the mean.\n", file)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Takes a protein family code (i.e. 1.A.1) as input, then\nsearches for the alignment sequence of the first protein in that\nfamily (i.e. 1.A.1.1.1), then psi-blasts this sequence, and finally\noutputs the number of protein homologues from every phylum while\nalso finding potential fusion proteins that are a certain standard\ndeviations away from the mean.\n\nExample Usage: python {0} -a70 -w3 -e0.00001 -i2 -c 1.E.10'.format(sys.argv[0]))
