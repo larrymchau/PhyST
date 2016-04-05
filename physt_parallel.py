@@ -13,7 +13,7 @@
 # hkkrishn563@gmail.com - hkkrishn@ucsd.edu
 
 import mechanize
-import sys,re,os
+import sys,re,os,subprocess
 import urllib2
 import tempfile
 from Bio import Entrez
@@ -382,9 +382,7 @@ def fetch_results(proteinCode,outputseq):
                 f.write('>{0}\n'.format(dataList[count][4]))
                 f.write(item+('\n'))
                 count = count+1
-        
-        os.system('clustalw2 ./clustalout/'+'1.E.5'+'.faa')
-
+ 
         #compute standard deviation
         total = 0
         for item in dataList:
@@ -504,5 +502,7 @@ if __name__=='__main__':
             iterate()
         fetch_results(fam,args.c)
         close()
+        if(args.c):
+            subprocess.check_output('clustalw2 ./clustalout/'+fam+'.faa')
 
     print "\nProgram finished."
